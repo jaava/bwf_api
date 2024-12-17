@@ -7,6 +7,12 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ('id', 'team1', 'team2', 'time', 'score1', 'score2', 'group')
 
 class GroupSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Group
+        fields = ('id', 'name', 'location', 'description')
+
+class GroupFullSerializer(serializers.ModelSerializer):
 
     events = EventSerializer(many=True, read_only=True)
     class Meta:
