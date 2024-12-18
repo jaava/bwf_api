@@ -1,5 +1,11 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from api.models import Group, Event
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username')
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
