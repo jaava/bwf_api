@@ -3,6 +3,10 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from api.models import Group, Event, UserProfile
 
+class ChangePasswordSerializer(serializers.Serializer):
+    
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
