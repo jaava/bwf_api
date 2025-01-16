@@ -6,6 +6,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 router = DefaultRouter()
 router.register(r'groups', views.GroupViewSet)
 router.register(r'events', views.EventViewSet)
+router.register(r'members', views.MemberViewSet)
 router.register(r'users', views.UserViewSet)
 router.register(r'profile', views.UserProfileViewSet)
 

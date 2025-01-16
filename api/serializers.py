@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from api.models import Group, Event, UserProfile
+from api.models import Group, Event, UserProfile, Member
 
 class ChangePasswordSerializer(serializers.Serializer):
     
@@ -34,6 +34,11 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ('id', 'team1', 'team2', 'time', 'score1', 'score2', 'group')
+
+class MemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = ('user', 'group', 'admin')
 
 class GroupSerializer(serializers.ModelSerializer):
     
