@@ -78,6 +78,24 @@ class MemberViewSet(viewsets.ModelViewSet):
         else:
             response = {'message': 'Wrong params'}
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=['POST'], detail=False)
+    def leave(self, request):
+        if 'group' in request.data and 'user' in request.data:
+            try:
+                group = Group.objects.get(id=request.data['group'])
+                user = User.objects.get(id=request.data['user'])
+
+                member = Member.objects.get(group=group, user=user)
+                member.delete()
+                response = {'message': 'Left group'}
+                return Response(response, status=status.HTTP_200_OK)
+            except:
+                response = {'message': 'Cannot Leave group'}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            response = {'message': 'Wrong params'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
 
