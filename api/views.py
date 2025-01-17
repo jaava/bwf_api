@@ -58,8 +58,27 @@ class EventViewSet(viewsets.ModelViewSet):
 class MemberViewSet(viewsets.ModelViewSet):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated,)
+
+    @action(methods=['POST'], detail=False)
+    def join(self, request):
+        if 'group' in request.data and 'user' in request.data:
+            try:
+                group = Group.objects.get(id=request.data['group'])
+                user = User.objects.get(id=request.data['user'])
+
+                member = Member.objects.create(group=group, user=user, admin=False)
+                serializer = MemberSerializer(member, many=False)
+                response = {'message': 'Joined group', 'result': serializer.data}
+                return Response(response, status=status.HTTP_200_OK)
+            except:
+                response = {'message': 'Cannot join group'}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            response = {'message': 'Wrong params'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CustomObtainAuthToken(ObtainAuthToken):
