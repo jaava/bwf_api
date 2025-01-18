@@ -5,10 +5,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from api.models import Group, Event, UserProfile, Member
+from api.models import Group, Event, UserProfile, Member, Comment
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
-from api.serializers import GroupSerializer, EventSerializer, GroupFullSerializer, UserSerializer, UserProfileSerializer, ChangePasswordSerializer, MemberSerializer
+from api.serializers import (GroupSerializer, EventSerializer, 
+                             GroupFullSerializer, UserSerializer, 
+                             UserProfileSerializer, ChangePasswordSerializer, 
+                             MemberSerializer, CommentSerializer)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -30,6 +33,12 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
