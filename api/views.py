@@ -5,13 +5,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from api.models import Group, Event, UserProfile, Member, Comment
+from api.models import Group, Event, UserProfile, Member, Comment, Bet
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from api.serializers import (GroupSerializer, EventSerializer, 
                              GroupFullSerializer, UserSerializer, 
                              UserProfileSerializer, ChangePasswordSerializer, 
-                             MemberSerializer, CommentSerializer)
+                             MemberSerializer, CommentSerializer, 
+                             EventFullSerializer, BetSerializer)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -64,6 +65,12 @@ class EventViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = EventFullSerializer(instance, many=False, context={'request': request})
+        return Response(serializer.data)
+    
+
 class MemberViewSet(viewsets.ModelViewSet):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
@@ -106,7 +113,11 @@ class MemberViewSet(viewsets.ModelViewSet):
             response = {'message': 'Wrong params'}
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-
+class BetViewSet(viewsets.ModelViewSet):
+    queryset = Bet.objects.all()
+    serializer_class = BetSerializer
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated,)
 
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
