@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from datetime import datetime
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -118,6 +119,57 @@ class BetViewSet(viewsets.ModelViewSet):
     serializer_class = BetSerializer
     # authentication_classes = (TokenAuthentication,)
     # permission_classes = (IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        response = {"message": "Method not allowed"}
+        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def update(self, request, *args, **kwargs):
+        response = {"message": "Method not allowed"}
+        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+    @action(methods=['POST'], detail=False, url_path='place_bet')
+    def place_bet(self, request):
+        if 'event' in request.data and 'score1' in request.data and 'score2' in request.data:
+            event_id = request.data['event']
+            event = Event.objects.get(id=event_id)
+
+            in_group = self.checkIfUserIsInGroup(event, request.user)
+
+            if event.time > datetime.now():
+                score1 = request.data['score1']
+                score2 = request.data['score2']
+
+                try:
+                    # UPDATE scenario
+                    my_bet = Bet.objects.get(user=request.user, event=event)
+                    my_bet.score1 = score1
+                    my_bet.score2 = score2
+                    my_bet.save()
+                    serializer = BetSerializer(my_bet, many=False)
+                    response = {"message": "Bet updated", "new": False, "result": serializer.data}
+                    return Response(response, status=status.HTTP_200_OK)
+                
+                except:
+                    # CREATE  scenario
+                    my_bet = Bet.objects.create(user=request.user, event=event, score1=score1, score2=score2)
+                    serializer = BetSerializer(my_bet, many=False)
+                    response = {"message": "Bet placed", "new": True, "result": serializer.data}
+                    return Response(response, status=status.HTTP_200_OK)
+            else:
+                response = {"message": "You can't place a bet. Too late!"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            response = {'message': 'Wrong params'}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+        
+    def checkIfUserIsInGroup(self, event, user):
+        try:
+            return Member.objects.get(user=user,group=event.group)
+        except:
+            return False
+
 
 class CustomObtainAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
