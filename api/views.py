@@ -117,8 +117,8 @@ class MemberViewSet(viewsets.ModelViewSet):
 class BetViewSet(viewsets.ModelViewSet):
     queryset = Bet.objects.all()
     serializer_class = BetSerializer
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         response = {"message": "Method not allowed"}
@@ -137,7 +137,8 @@ class BetViewSet(viewsets.ModelViewSet):
 
             in_group = self.checkIfUserIsInGroup(event, request.user)
 
-            if event.time > datetime.now():
+            # if event.time > datetime.now():
+            if in_group:
                 score1 = request.data['score1']
                 score2 = request.data['score2']
 
@@ -148,14 +149,14 @@ class BetViewSet(viewsets.ModelViewSet):
                     my_bet.score2 = score2
                     my_bet.save()
                     serializer = BetSerializer(my_bet, many=False)
-                    response = {"message": "Bet updated", "new": False, "result": serializer.data}
+                    response = {"message": "Bet Updated", "new": False, "result": serializer.data}
                     return Response(response, status=status.HTTP_200_OK)
                 
                 except:
                     # CREATE  scenario
                     my_bet = Bet.objects.create(user=request.user, event=event, score1=score1, score2=score2)
                     serializer = BetSerializer(my_bet, many=False)
-                    response = {"message": "Bet placed", "new": True, "result": serializer.data}
+                    response = {"message": "Bet Created", "new": True, "result": serializer.data}
                     return Response(response, status=status.HTTP_200_OK)
             else:
                 response = {"message": "You can't place a bet. Too late!"}
