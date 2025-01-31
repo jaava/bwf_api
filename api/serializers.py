@@ -43,10 +43,19 @@ class BetSerializer(serializers.ModelSerializer):
 
 class EventFullSerializer(serializers.ModelSerializer):
     bets = BetSerializer(many=True)
+    is_admin = serializers.SerializerMethodField()
     class Meta:
         model = Event
-        fields = ('id', 'team1', 'team2', 'time', 'score1', 'score2', 'group', 'bets')
+        fields = ('id', 'team1', 'team2', 'time', 'score1', 'score2', 'group', 'bets', 'is_admin')
 
+    def get_is_admin(self, obj):
+        user = self.context['request'].user
+        try:
+            member = Member.objects.get(group=obj.group, user=user)
+            return member.admin
+        except:
+            return None
+    
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
