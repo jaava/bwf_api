@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from datetime import datetime
+import pytz
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -170,8 +171,7 @@ class BetViewSet(viewsets.ModelViewSet):
 
             in_group = self.checkIfUserIsInGroup(event, request.user)
 
-            # if event.time > datetime.now():
-            if in_group:
+            if event.time > datetime.now(pytz.UTC) and in_group:
                 score1 = request.data["score1"]
                 score2 = request.data["score2"]
 
