@@ -46,9 +46,15 @@ class BetSerializer(serializers.ModelSerializer):
 class EventFullSerializer(serializers.ModelSerializer):
     bets = BetSerializer(many=True)
     is_admin = serializers.SerializerMethodField()
+    num_bets = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
-        fields = ('id', 'team1', 'team2', 'time', 'score1', 'score2', 'group', 'bets', 'is_admin')
+        fields = ('id', 'team1', 'team2', 'time', 'score1', 'score2', 'group', 'bets', 'is_admin', 'num_bets')
+
+    def get_num_bets(self, obj):
+        no_bets  = Bet.objects.filter(event=obj).count()
+        return no_bets
 
     def get_bets(self, obj):
         if obj.time < timezone.now():
