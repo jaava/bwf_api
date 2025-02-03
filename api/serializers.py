@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from api.models import Group, Event, UserProfile, Member, Comment, Bet
 from django.db.models import Sum
+from django.utils import timezone
 
 class ChangePasswordSerializer(serializers.Serializer):
     
@@ -49,6 +50,17 @@ class EventFullSerializer(serializers.ModelSerializer):
         model = Event
         fields = ('id', 'team1', 'team2', 'time', 'score1', 'score2', 'group', 'bets', 'is_admin')
 
+    def get_bets(self, obj):
+        if obj.time < timezone.now():
+            bets = Bet.objects.filter(event=obj)
+        else:
+            user = self.context['request'].user
+            bets = Bet.objects.filter(event=obj, user=user)
+        
+        serializer = BetSerializer(bets, many=True)
+        return serializer.data
+        
+    
     def get_is_admin(self, obj):
         user = self.context['request'].user
         try:
